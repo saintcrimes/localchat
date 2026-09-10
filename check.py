@@ -1,0 +1,3 @@
+ok = {}
+
+print(ok.type)

@@ -1,0 +1,11 @@
+dalban.txt
+env
+time.py
+practice.py
+log.txt
+__pycache__
+*.log
+uv.lock
+requirements.txt
+
+
