@@ -7,5 +7,6 @@ __pycache__
 *.log
 uv.lock
 requirements.txt
-
+check.py
+.python-version
 
