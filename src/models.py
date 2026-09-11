@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Boolean, ForeignKey, Table, Column, Enum as SAEnum, DateTime, Index
-from .base import Base, metadata
+from base import Base, metadata
 from datetime import datetime, timezone
 from typing import List, Optional
 import enum
@@ -36,6 +36,7 @@ class Chat(Base):
     chat_type: Mapped[str] = mapped_column(SAEnum(ChatType,inherit_schema=True))
 
     users: Mapped[List["users"]] = relationship(secondary=chat_participant,  back_populates="chats")
+    messages: Mapped[List["messages"]] = relationship(back_populates="chat", cascade="all,delete")
     read_statuses: Mapped[List["ReadStatus"]] = relationship(back_populates="chat")
 
 
@@ -65,6 +66,7 @@ class messages(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     senderId: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    message_type: Mapped[str] = mapped_column(SAEnum(MessageType, inherit_schema=True), default=MessageType.TEXT)
     chatId: Mapped[int] = mapped_column(ForeignKey("chat.id"))
     content: Mapped[str] = mapped_column(String)
     timestamp: Mapped[datetime] = mapped_column(default=datetime.utcnow)
@@ -72,6 +74,7 @@ class messages(Base):
 
     
     sender: Mapped["users"] = relationship(back_populates="messages")
+    chat: Mapped["Chat"] = relationship(back_populates="messages")
 
 
 class ReadStatus(Base):

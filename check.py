@@ -1,3 +1,7 @@
-ok = {}
+def my_function(**kwargs):
+    print(kwargs)
 
-print(ok.type)
+
+ok = my_function(name="Arslan", age=19)
+
+print(type(ok))

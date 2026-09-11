@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from .Config import settings
+from Config import settings
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime, timezone
-from .Config import settings
+from Config import settings
 from sqlalchemy import MetaData, Boolean, DateTime
 from datetime import datetime, timezone
 import logging

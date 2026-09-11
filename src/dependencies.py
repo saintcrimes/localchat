@@ -10,6 +10,7 @@ from authentication.services import (
 )
 
 
+
 async def get_current_user(
     access_token: Annotated[str | None, Cookie()],
     db_session: AsyncSession = Depends(get_db),
@@ -51,3 +52,4 @@ async def get_current_user(
         )
 
     return user
+
