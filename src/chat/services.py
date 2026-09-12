@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from models import users as User, Chat, ChatType
 from sqlalchemy import select, and_
+from sqlalchemy.orm import selectinload
 from uuid import UUID
 import logging 
 
@@ -28,6 +29,13 @@ async def get_user_by_guid(db_session: AsyncSession, guid: UUID) -> User | None:
     result = await db_session.execute(query)
     return result.scalar_one_or_none()
     
+
+async def get_chat_by_guid(db_session: AsyncSession, guid: UUID) -> Chat | None:
+    query = select(Chat).where(Chat.guid == guid).options(selectinload(Chat.messages),selectinload(Chat.users), selectinload(Chat.read_statuses))
+    result = await db_session.execute(query)
+    user: User | None = result.scalar_one_or_none()
+    return user
+
 
 
 async def create_direct_chat(db_session: AsyncSession, *, initator_user: User, recipient_user: User) -> Chat:

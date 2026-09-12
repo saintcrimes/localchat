@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Query
 from .schemas import CreateDirectChatSchema
 from base import get_db
 from typing import Annotated
@@ -12,8 +12,9 @@ from fastapi_limiter.depends import RateLimiter
 from fastapi import Response
 from pyrate_limiter import Duration, Limiter, Rate
 from authentication.services import get_user_guid_by_username
-from .services import get_user_by_guid, create_direct_chat
+from .services import get_user_by_guid, create_direct_chat, get_chat_by_guid
 from models import users, Chat
+from uuid import UUID
 
 
 
@@ -43,7 +44,24 @@ async def create_direct_chat_post(
     chat: Chat = await create_direct_chat(db_session, initator_user=current_user,recipient_user=recipient_user)
     return chat
 
-    
+
+@chat_router.get("/k/{chat_guid}/", summary="Get chat's message")
+async def get_chat_messages(
+    chat_guid: UUID,
+    size: Annotated[int | None, Query(gt=0, le=200)],
+    db_session: session,
+    current_user: User = Depends(get_current_user),
+):
+    chat: Chat = await get_chat_by_guid(db_session, chat_guid)
+
+    if not chat:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="With provided guid, chat not found :("
+        )
+    return chat
+
+
 
 @chat_router.get("/chat/direct/", summary="Get user's direct chats")
 async def chat_direct_get(username: str, db_session: session):
