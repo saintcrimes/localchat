@@ -12,7 +12,8 @@ from fastapi_limiter.depends import RateLimiter
 from fastapi import Response
 from pyrate_limiter import Duration, Limiter, Rate
 from authentication.services import get_user_guid_by_username
-from .services import get_user_by_guid
+from .services import get_user_by_guid, create_direct_chat
+from models import users, Chat
 
 
 
@@ -23,10 +24,10 @@ chat_router = APIRouter(tags=["Chat Management"])
 session = Annotated[AsyncSession, Depends(get_db)]
 
 @chat_router.post("/chat/direct_chat",summary="Register")
-async def create_direct_chat(
+async def create_direct_chat_post(
     create_direct_chat_schema: CreateDirectChatSchema,
     db_session: session,
-    response: Response,
+    current_user: users = Depends(get_current_user)
 ):  
 
     recipient_user_guid = create_direct_chat_schema.recipient_user_guid
@@ -38,6 +39,9 @@ async def create_direct_chat(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Not found guid which provided"
         )
+    
+    chat: Chat = await create_direct_chat(db_session, initator_user=current_user,recipient_user=recipient_user)
+    return chat
 
     
 
@@ -45,7 +49,5 @@ async def create_direct_chat(
 async def chat_direct_get(username: str, db_session: session):
 
     guid = await get_user_guid_by_username(username=username, db_session=db_session)
-
-   
 
     return guid

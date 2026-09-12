@@ -106,7 +106,6 @@ async def websocket_endpoint(
 
 
     await manager.broadcast(join)
-    logging.info("Join message send")
     
     try:
         while True:

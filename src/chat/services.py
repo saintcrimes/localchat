@@ -2,7 +2,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models import users as User, Chat, ChatType
 from sqlalchemy import select, and_
 from uuid import UUID
+import logging 
 
+logger = logging.getLogger(f"chatapp.{__name__}")
 
 async def direct_chat_exists(db_session: AsyncSession, *, current_user: User, recipient_user: User) -> bool:
     query = select(
@@ -24,5 +26,23 @@ async def get_user_by_guid(db_session: AsyncSession, guid: UUID) -> User | None:
     query = select(User).where(User.guid == guid)
 
     result = await db_session.execute(query)
+    return result.scalar_one_or_none()
+    
 
-    return result
+
+async def create_direct_chat(db_session: AsyncSession, *, initator_user: User, recipient_user: User) -> Chat:
+
+    try:
+        chat = Chat(chat_type=ChatType.DIRECT)
+        chat.users.append(initator_user)
+        chat.users.append(recipient_user)
+        db_session.add(chat)
+        await db_session.commit()
+
+    except Exception as exc_info:
+        await db_session.rollback()
+        logger.error(f"LOOK AT: {exc_info}")
+        raise exc_info
+
+    else:
+        return chat
